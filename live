@@ -1,0 +1,37 @@
+#!/bin/bash
+# Switch db to live environment
+
+SITE_NAME="rob1" #Local site name in xampp
+DB_PREFIX="wp_" #if you dont know then run
+
+#----------DO NOT EDIT BELOW THIS LINE---------------------------------------------------------
+
+TEST_URL=$SITE_NAME"test.test.com" #Url of live test site
+TEST_PATH="var/www/vhosts/test.com/$TEST_URL/"
+LOCAL_SITE_HOME="http://localhost:8080/sites/$SITE_NAME"
+TEST_SITE_HOME="https://$TEST_URL"
+
+echo "Test site home: "$TEST_SITE_HOME
+echo "Local site home: "$LOCAL_SITE_HOME
+echo "DB Prefix: "$DB_PREFIX
+
+mysql --login-path=ras -e "
+use ${SITE_NAME}test;
+UPDATE ${DB_PREFIX}options SET option_value = REPLACE(option_value, '$LOCAL_SITE_HOME', '$TEST_SITE_HOME') WHERE option_name = 'home' OR option_name = 'siteurl';
+UPDATE ${DB_PREFIX}posts SET post_content = REPLACE (post_content, '$LOCAL_SITE_HOME', '$TEST_SITE_HOME');
+UPDATE ${DB_PREFIX}posts SET post_excerpt = REPLACE (post_excerpt, '$LOCAL_SITE_HOME', '$TEST_SITE_HOME');
+UPDATE ${DB_PREFIX}postmeta SET meta_value = REPLACE (meta_value, '$LOCAL_SITE_HOME','$TEST_SITE_HOME');
+UPDATE ${DB_PREFIX}termmeta SET meta_value = REPLACE (meta_value, '$LOCAL_SITE_HOME','$TEST_SITE_HOME');
+UPDATE ${DB_PREFIX}comments SET comment_content = REPLACE (comment_content, '$LOCAL_SITE_HOME', '$TEST_SITE_HOME');
+UPDATE ${DB_PREFIX}comments SET comment_author_url = REPLACE (comment_author_url, '$LOCAL_SITE_HOME','$TEST_SITE_HOME');
+UPDATE ${DB_PREFIX}posts SET guid = REPLACE (guid, '$LOCAL_SITE_HOME', '$TEST_SITE_HOME') WHERE post_type = 'attachment';
+"
+
+#switch db to staging
+wp-cli.phar --ssh=sshusername@1.1.1.1/$TEST_PATH option update home $TEST_SITE_HOME
+wp-cli.phar --ssh=sshusername@1.1.1.1/$TEST_PATH option update siteurl $TEST_SITE_HOME
+wp-cli.phar --ssh=sshusername@1.1.1.1/$TEST_PATH elementor replace_urls $LOCAL_SITE_HOME $TEST_SITE_HOME
+wp-cli.phar --ssh=sshusername@1.1.1.1/$TEST_PATH rewrite flush
+wp-cli.phar --ssh=sshusername@1.1.1.1/$TEST_PATH elementor flush_css
+
+echo "Site is now on live"

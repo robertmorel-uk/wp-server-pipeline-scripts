@@ -1,0 +1,388 @@
+/*Create new theme--------------------------------
+
+1) Add typekit fonts to functions.php if using Typekit
+2) Search and replace all C1
+3) Search and replace all C2
+4) Search and replace B3
+5) Search and replace F1
+6) Search and replace F2
+
+REFERENCE-------------------------------------------
+
+Text colors
+    c1 is primary text color
+    c2 is secondary text color
+    c3 is blackish text
+    c4 is whiteish text
+
+Background colors
+    b1 is primary DARK background color (c1)
+    b2 is secondary DARK background color (c2)
+    b3 is primary LIGHT background color
+
+Fonts
+    f1 is font for titles
+    f2 is font for text
+
+Sizes
+    s1 is Big title
+    s2 is title
+    s3 is subtitle
+    s4 is medium text
+    s5 is small text
+*/
+
+/*Global settings-------------------------------*/
+
+.page-header,
+#site-header {
+    display: none !important;
+}
+
+/*Hide default titles by WordPress*/
+
+html {
+    scroll-behavior: smooth;
+}
+
+/*Containers-----------------------------------*/
+
+
+.rasPostSection .elementor-container {
+    max-width: 1400px !important;
+    padding: 40px !important;
+}
+
+/*Inner container of section*/
+
+#rasHomeSlider .elementor-slide-heading {
+    font-weight: 300;
+    font-size: 90px;
+}
+
+/*Colors--------------------------------------*/
+
+.c1,
+.c1 p,
+.c1 h1,
+.c1 h2,
+.c1 h3,
+.c1 h4,
+.c1 ul,
+.c1 li,
+.c1 a,
+.c1 span,
+.c1 label,
+.c1 form,
+.c1 input,
+.c1 textarea {
+    color: #472D30 !important;
+}
+
+.c2,
+.c2 p,
+.c2 h1,
+.c2 h2,
+.c2 h3,
+.c2 h4,
+.c2 ul,
+.c2 li,
+.c2 a,
+.c2 span,
+.c2 label,
+.c2 form,
+.c2 input,
+.c2 textarea {
+    color: #E26D5C !important;
+}
+
+.c3,
+.c3 p,
+.c3 h1,
+.c3 h2,
+.c3 h3,
+.c3 h4,
+.c3 ul,
+.c3 li,
+.c3 a,
+.c3 span,
+.c3 label,
+.c3 form,
+.c3 input,
+.c3 textarea {
+    color: #252425 !important;
+}
+
+.c4,
+.c4 p,
+.c4 h1,
+.c4 h2,
+.c4 h3,
+.c4 h4,
+.c4 ul,
+.c4 li,
+.c4 a,
+.c4 span,
+.c4 label,
+.c4 form,
+.c4 input,
+.c4 textarea {
+    color: #fff !important;
+}
+
+/*Background colors-----------------------------*/
+
+.b1 {
+    background-color: #472D30 !important;
+}
+
+.b2 {
+    background-color: #E26D5C !important;
+}
+
+.b3 {
+    background-color: #C9CBA3 !important;
+}
+
+
+/*Fonts----------------------------------*/
+
+.f1,
+.f1 h1,
+.f1 h2,
+.f1 h2 span,
+.f1 h3,
+.f1 h3 span,
+.f1 h4 {
+    font-family: rig-solid-bold-reverse, sans-serif !important;
+}
+
+.f2,
+.f2 p,
+.f2 h3,
+.f2 h3 span,
+.f2 h4,
+.f2 h4 span,
+.f2 ul,
+.f2 li,
+.f2 a,
+.f2 span,
+.f2 label,
+.f2 form,
+.f2 input,
+.f2 textarea {
+    font-family: coquette, sans-serif !important;
+}
+
+
+/*Text size----------------------------------------*/
+
+.s1,
+.s1 h1,
+.s1 h2,
+.s1 h3 {
+    font-size: 90px !important;
+    line-height: 99px !important;
+    font-weight: 500 !important;
+}
+
+/*Big Title*/
+
+.s2,
+.s2 h1,
+.s2 h2,
+.s2 h3 {
+    font-size: 60px !important;
+    line-height: 68px !important;
+    font-weight: 500 !important;
+}
+
+/*Title*/
+
+.s3,
+.s3 p.s3 h1,
+.s3 h2,
+.s3 h3,
+.s3 h4,
+.s3 h5,
+.s3 h6 {
+    font-size: 32px !important;
+    line-height: 40px !important;
+}
+
+/*Subtitle*/
+
+.s4,
+.s4 p,
+.s4 h1,
+.s4 h2,
+.s4 h3,
+.s4 h4,
+.s4 h5,
+.s4 h6,
+.rasIconBox .elementor-icon-box-title a,
+.rasPosts .elementor-post__title a {
+    font-size: 26px !important;
+    line-height: 32px !important;
+}
+
+/*Medium text*/
+
+.s5,
+.s5 p,
+.s5 span,
+.s5 li,
+.rasPosts .elementor-post__excerpt p,
+.rasPosts .elementor-post__read-more {
+    font-size: 18px !important;
+    line-height: 28px !important;
+}
+
+/*Paragraph text*/
+
+.rasMainMenu .has-submenu {
+    cursor: context-menu;
+}
+
+/*Menu*/
+
+
+/* Desktops */
+@media (min-width: 768px) and (max-width: 1024px) {
+
+    .s1,
+    .s1 h1,
+    .s1 h2,
+    .s1 h3 {
+        font-size: 60px !important;
+        line-height: 68px !important;
+    }
+
+    /*Big Title*/
+
+    .s2,
+    .s2 h1,
+    .s2 h2,
+    .s2 h3 {
+        font-size: 40px !important;
+        line-height: 48px !important;
+    }
+
+    /*Title*/
+
+    .s3,
+    .s3 p.s3 h1,
+    .s3 h2,
+    .s3 h3,
+    .s3 h4,
+    .s3 h5,
+    .s3 h6 {
+        font-size: 26px !important;
+        line-height: 32px !important;
+    }
+
+    /*Subtitle*/
+
+    .s4,
+    .s4 p,
+    .s4 h1,
+    .s4 h2,
+    .s4 h3,
+    .s4 h4,
+    .s4 h5,
+    .s4 h6,
+    .rasIconBox .elementor-icon-box-title a,
+    .rasPosts .elementor-post__title a {
+        font-size: 22px !important;
+        line-height: 28px !important;
+    }
+
+    /*Medium text*/
+}
+
+/*Mobiles (Landscape)*/
+@media (min-width: 220px) and (max-width: 767px) {
+
+    .rasSection .elementor-container,
+    .rasPostSection .elementor-container {
+        padding: 20px 10px !important;
+    }
+
+    /*Inner container of section*/
+
+    .s1,
+    .s1 h1,
+    .s1 h2,
+    .s1 h3 {
+        font-size: 40px !important;
+        line-height: 48px !important;
+    }
+
+    /*Big Title*/
+
+    .s2,
+    .s2 h1,
+    .s2 h2,
+    .s2 h3 {
+        font-size: 34px !important;
+        line-height: 40px !important;
+    }
+
+    /*Title*/
+
+    .s3,
+    .s3 p.s3 h1,
+    .s3 h2,
+    .s3 h3,
+    .s3 h4,
+    .s3 h5,
+    .s3 h6 {
+        font-size: 28px !important;
+        line-height: 34px !important;
+    }
+
+    /*Subtitle*/
+
+    .s4,
+    .s4 p,
+    .s4 h1,
+    .s4 h2,
+    .s4 h3,
+    .s4 h4,
+    .s4 h5,
+    .s4 h6,
+    .rasIconBox .elementor-icon-box-title a,
+    .rasPosts .elementor-post__title a {
+        font-size: 20px !important;
+        line-height: 26px !important;
+    }
+
+    /*Medium text*/
+}
+
+@media (min-width: 1025px) and (max-width: 1320px) {
+
+    .s3,
+    .s3 p.s3 h1,
+    .s3 h2,
+    .s3 h3,
+    .s3 h4,
+    .s3 h5,
+    .s3 h6 {
+        font-size: 28px !important;
+        line-height: 34px !important;
+    }
+
+    /*Subtitle*/
+
+    .s5,
+    .s5 p,
+    .s5 span,
+    .s5 li,
+    .rasPosts .elementor-post__excerpt p,
+    .rasPosts .elementor-post__read-more {
+        font-size: 16px !important;
+        line-height: 22px !important;
+    }
+
+}

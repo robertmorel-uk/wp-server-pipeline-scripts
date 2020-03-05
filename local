@@ -1,0 +1,36 @@
+#!/bin/bash
+# Switch db to local environment
+
+SITE_NAME="rob1" #Local site name in xampp
+DB_PREFIX="wp_" #if you dont know then run
+
+#----------DO NOT EDIT BELOW THIS LINE---------------------------------------------------------
+
+TEST_URL=$SITE_NAME"test.com" #Url of live test site
+LOCAL_SITE_HOME="http://localhost:8080/sites/$SITE_NAME"
+TEST_SITE_HOME="https://$TEST_URL"
+
+echo "Test site home: "$TEST_SITE_HOME
+echo "Local site home: "$LOCAL_SITE_HOME
+echo "DB Prefix: "$DB_PREFIX
+
+mysql --login-path=ras -e "
+use ${SITE_NAME}test;
+UPDATE ${DB_PREFIX}options SET option_value = REPLACE(option_value, '$TEST_SITE_HOME', '$LOCAL_SITE_HOME') WHERE option_name = 'home' OR option_name = 'siteurl';
+UPDATE ${DB_PREFIX}posts SET post_content = REPLACE (post_content, '$TEST_SITE_HOME', '$LOCAL_SITE_HOME');
+UPDATE ${DB_PREFIX}posts SET post_excerpt = REPLACE (post_excerpt, '$TEST_SITE_HOME', '$LOCAL_SITE_HOME');
+UPDATE ${DB_PREFIX}postmeta SET meta_value = REPLACE (meta_value, '$TEST_SITE_HOME','$LOCAL_SITE_HOME');
+UPDATE ${DB_PREFIX}termmeta SET meta_value = REPLACE (meta_value, '$TEST_SITE_HOME','$LOCAL_SITE_HOME');
+UPDATE ${DB_PREFIX}comments SET comment_content = REPLACE (comment_content, '$TEST_SITE_HOME', '$LOCAL_SITE_HOME');
+UPDATE ${DB_PREFIX}comments SET comment_author_url = REPLACE (comment_author_url, '$TEST_SITE_HOME','$LOCAL_SITE_HOME');
+UPDATE ${DB_PREFIX}posts SET guid = REPLACE (guid, '$TEST_SITE_HOME', '$LOCAL_SITE_HOME') WHERE post_type = 'attachment';
+"
+
+#switch db to local
+wp-cli.phar option update home $LOCAL_SITE_HOME
+wp-cli.phar option update siteurl $LOCAL_SITE_HOME
+wp-cli.phar elementor replace_urls $TEST_SITE_HOME $LOCAL_SITE_HOME
+wp-cli.phar rewrite flush
+wp-cli.phar elementor flush_css
+
+echo "Site is now on local"

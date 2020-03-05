@@ -1,0 +1,52 @@
+#!/bin/bash
+#push to stage
+
+SITE_NAME="" #Local site name in xampp
+
+#----------DO NOT EDIT BELOW THIS LINE---------------------------------------------------------
+
+CUR_USER=$(whoami)
+LOCAL_PATH="/c/Users/$CUR_USER/Projects/xampp/htdocs/sites/$SITE_NAME"
+TEST_PATH="var/www/vhosts.com/${SITE_NAME}test.com/wp-content/uploads"
+STAGE_PATH="var/www/vhosts.com/${SITE_NAME}.com"
+
+TEST_SITE_HOME="https://${SITE_NAME}test.com"
+STAGE_SITE_HOME="https://${SITE_NAME}.com"
+
+#Pull uploads locally
+rsync --ignore-existing -rave ssh mywebsitecomadmin@80.82.113.00:/$TEST_PATH ~/tmp/
+printf "\nUploads folder containing images pulled from test to local\n"
+
+printf "\nMoving to correct directory and cleaning up....\n"
+#Move uploads to correct directory
+rm -r $LOCAL_PATH/wp-content/uploads
+mv ~/tmp/uploads $LOCAL_PATH/wp-content/
+
+#Send uploads to staging
+rsync --ignore-existing -rave ssh $LOCAL_PATH/wp-content/uploads mywebsitecomadmin@80.82.113.00:/$STAGE_PATH/wp-content/
+printf "\nUploads folder containing images pushed from local to staging\n"
+#Push database 
+#export from test
+read -r -p "Do you want to update the staging database? [y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]
+then
+    echo "Exporting database: ${SITE_NAME}test..."
+    mysqldump --login-path=mywebsitecom --column-statistics=0 ${SITE_NAME}test > ${SITE_NAME}test.sql
+    echo "Dropping database ${SITE_NAME}stage from staging server..."
+    mysql --login-path=mywebsitecom -e "drop database IF EXISTS ${SITE_NAME}stage;"
+    echo "Importing database to staging..."
+    mysql --login-path=mywebsitecom -e "create database ${SITE_NAME}stage;"
+    mysql --login-path=mywebsitecom ${SITE_NAME}stage < ${SITE_NAME}test.sql
+
+    wp --ssh=mywebsitecomadmin@80.82.113.00/$STAGE_PATH option update home $STAGE_SITE_HOME
+    wp --ssh=mywebsitecomadmin@80.82.113.00/$STAGE_PATH option update siteurl $STAGE_SITE_HOME
+    wp --ssh=mywebsitecomadmin@80.82.113.00/$STAGE_PATH elementor replace_urls $TEST_SITE_HOME $STAGE_SITE_HOME
+    wp --ssh=mywebsitecomadmin@80.82.113.00/$STAGE_PATH rewrite flush
+    wp --ssh=mywebsitecomadmin@80.82.113.00/$STAGE_PATH elementor flush_css
+
+    rm "${LOCAL_PATH}/bin/migrate/${SITE_NAME}test.sql"
+
+else
+    echo "Staging database NOT updated."
+fi
+printf "\nAll done! Remember to git push the files and manually deploy them!\n\n"

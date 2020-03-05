@@ -1,0 +1,60 @@
+#!/bin/bash
+#push to stage
+
+SITE_NAME="" #Local site name in xampp
+LIVE_URL=""
+LIVE_SSH_USER="" # ssh user for live site
+
+#----------DO NOT EDIT BELOW THIS LINE---------------------------------------------------------
+
+CUR_USER=$(whoami)
+LOCAL_PATH="/c/Users/$CUR_USER/Projects/wamp/www/sites/$SITE_NAME"
+STAGE_PATH="var/www/vhosts/ras-staging.com/${SITE_NAME}.ras-staging.com/wp-content/uploads"
+LIVE_PATH="var/www/vhosts/$LIVE_URL"
+
+STAGE_SITE_HOME="https://${SITE_NAME}.com"
+LIVE_SITE_HOME="http://${LIVE_URL}"
+DB_PREFIX="xxxxxxxxx"
+
+#Pull uploads locally
+rsync --ignore-existing -rave ssh rasadmin@80.82.113.00:/$STAGE_PATH ~/tmp/
+printf "\nUploads folder containing images pulled from STAGE to local\n"
+
+printf "\nMoving to correct directory and cleaning up....\n"
+#Move uploads to correct directory
+rm -r $LOCAL_PATH/wp-content/uploads
+mv ~/tmp/uploads $LOCAL_PATH/wp-content/
+
+#Send uploads to live
+rsync --ignore-existing -rave ssh ${LOCAL_PATH}/wp-content/uploads ${LIVE_SSH_USER}@80.82.113.00:/${LIVE_PATH}/httpdocs/wp-content/
+printf "\nUploads folder containing images pushed from staging to live\n"
+
+    echo "Exporting database: ${SITE_NAME}stage..."
+    mysqldump --login-path=ras --column-statistics=0 ${SITE_NAME}stage > ${SITE_NAME}stage.sql
+    echo "Dropping database ${SITE_NAME}LiveRas from live server..."
+    mysql --login-path=mywebsitecom -e "drop database IF EXISTS ${SITE_NAME}LiveRas;"
+    echo "Importing database to live..."
+    mysql --login-path=mywebsitecom -e "create database ${SITE_NAME}LiveRas;"
+    mysql --login-path=mywebsitecom ${SITE_NAME}LiveRas < ${SITE_NAME}stage.sql
+
+    wp-cli.phar --ssh=mywebsitecomliveuser@80.82.113.00/$LIVE_PATH/httpdocs option update home $LIVE_SITE_HOME
+    wp-cli.phar --ssh=mywebsitecomliveuser@80.82.113.00/$LIVE_PATH/httpdocs option update siteurl $LIVE_SITE_HOME
+    wp-cli.phar --ssh=mywebsitecomliveuser@80.82.113.00/$LIVE_PATH/httpdocs elementor replace_urls $STAGE_SITE_HOME $LIVE_SITE_HOME
+    wp-cli.phar --ssh=mywebsitecomliveuser@80.82.113.00/$LIVE_PATH/httpdocs rewrite flush
+    wp-cli.phar --ssh=mywebsitecomliveuser@80.82.113.00/$LIVE_PATH/httpdocs elementor flush_css
+
+    mysql --login-path=mywebsitecom -e "
+        use ${SITE_NAME}test;
+        UPDATE ${DB_PREFIX}options SET option_value = REPLACE(option_value, '$STAGE_SITE_HOME', '$LIVE_SITE_HOME') WHERE option_name = 'home' OR option_name = 'siteurl';
+        UPDATE ${DB_PREFIX}posts SET post_content = REPLACE (post_content, '$STAGE_SITE_HOME', '$LIVE_SITE_HOME');
+        UPDATE ${DB_PREFIX}posts SET post_excerpt = REPLACE (post_excerpt, '$STAGE_SITE_HOME', '$LIVE_SITE_HOME');
+        UPDATE ${DB_PREFIX}postmeta SET meta_value = REPLACE (meta_value, '$STAGE_SITE_HOME','$LIVE_SITE_HOME');
+        UPDATE ${DB_PREFIX}termmeta SET meta_value = REPLACE (meta_value, '$STAGE_SITE_HOME','$LIVE_SITE_HOME');
+        UPDATE ${DB_PREFIX}comments SET comment_content = REPLACE (comment_content, '$STAGE_SITE_HOME', '$LIVE_SITE_HOME');
+        UPDATE ${DB_PREFIX}comments SET comment_author_url = REPLACE (comment_author_url, '$STAGE_SITE_HOME','$LIVE_SITE_HOME');
+        UPDATE ${DB_PREFIX}posts SET guid = REPLACE (guid, '$STAGE_SITE_HOME', '$LIVE_SITE_HOME') WHERE post_type = 'attachment';
+        "
+
+    rm "${LOCAL_PATH}/bin/migrate/${SITE_NAME}stage.sql"
+
+printf "\nAll done! Remember to git push the files and manually deploy them!\n\n"

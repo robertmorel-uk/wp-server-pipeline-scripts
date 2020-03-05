@@ -1,0 +1,14 @@
+#!/bin/bash
+#Local to test uploads
+
+SITE_NAME="mywebsitecom" #Local site name in xampp
+
+#----------DO NOT EDIT BELOW THIS LINE---------------------------------------------------------
+
+CUR_USER=$(whoami)
+LOCAL_PATH="/c/Users/$CUR_USER/Projects/xampp/htdocs/sites/$SITE_NAME"
+TEST_PATH="var/www/vhosts/mywebsitecom.com/${SITE_NAME}test.mywebsitecom.com"
+
+rsync --ignore-existing -rave ssh $LOCAL_PATH/wp-content/uploads rasadmin@80.82.113.61:/$TEST_PATH/wp-content/
+printf "\nUploads folder containing images pushed from local to test"
+printf "\nRemember to git push the files and manually deploy them!\n\n"

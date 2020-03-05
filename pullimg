@@ -1,0 +1,17 @@
+#!/bin/bash
+# rsync uploads from test to local
+
+SITE_NAME="mywebsitecom" #Local site name in xampp
+
+#----------DO NOT EDIT BELOW THIS LINE---------------------------------------------------------
+
+CUR_USER=$(whoami)
+TEST_URL=$SITE_NAME"test.mywebsitecom.com" #Url of live test site
+LOCAL_PATH="/mnt/c/Users/$CUR_USER/Projects/xampp/htdocs/sites/$SITE_NAME"
+TEST_PATH="var/www/vhosts/mywebsitecom.com/$TEST_URL/wp-content/uploads"
+
+rsync --ignore-existing -ravze ssh rasadmin@80.82.113.61:/$TEST_PATH ~/tmp/
+printf "\nUploads folder containing images pulled from test to local"
+
+sudo rm -r $LOCAL_PATH/wp-content/uploads
+sudo mv ~/tmp/uploads $LOCAL_PATH/wp-content/

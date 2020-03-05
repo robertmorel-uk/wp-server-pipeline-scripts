@@ -1,0 +1,44 @@
+#!/bin/bash
+#pull from staging to local
+
+SITE_NAME=" #Local site name in xampp
+
+#----------DO NOT EDIT BELOW THIS LINE---------------------------------------------------------
+
+CUR_USER=$(whoami)
+LOCAL_PATH="/c/Users/$CUR_USER/Projects/xampp/htdocs/sites/$SITE_NAME"
+TEST_PATH="var/www/vhosts.com/${SITE_NAME}test.com/wp-content"
+STAGE_PATH="var/www/vhosts.com/${SITE_NAME}.com"
+
+TEST_SITE_HOME="https://${SITE_NAME}test.com"
+STAGE_SITE_HOME="https://${SITE_NAME}.com"
+
+#Pull uploads locally
+rsync --ignore-existing -rave ssh rasadmin@80.82.113.61:/$STAGE_PATH/wp-content/uploads ~/tmp/
+printf "\nUploads folder containing images pulled from staging to local\n"
+
+printf "\nMoving to correct directory and cleaning up....\n"
+#Move uploads to correct directory
+rm -r $LOCAL_PATH/wp-content/uploads
+mv ~/tmp/uploads $LOCAL_PATH/wp-content/
+
+rsync --ignore-existing -rave ssh $LOCAL_PATH/wp-content/uploads rasadmin@80.82.113.61:/$TEST_PATH/
+printf "\nUploads folder containing images pushed from local to test"
+
+    echo "Exporting database: ${SITE_NAME}stage..."
+    mysqldump --login-path=ras --column-statistics=0 ${SITE_NAME}stage > ${SITE_NAME}stage.sql
+    echo "Dropping database ${SITE_NAME}test from test server..."
+    mysql --login-path=ras -e "drop database IF EXISTS ${SITE_NAME}test;"
+    echo "Importing database to local..."
+    mysql --login-path=ras -e "create database ${SITE_NAME}test;"
+    mysql --login-path=ras ${SITE_NAME}test < ${SITE_NAME}stage.sql
+
+    wp option update home $TEST_SITE_HOME
+    wp option update siteurl $TEST_SITE_HOME
+    wp elementor replace_urls $STAGE_SITE_HOME $TEST_SITE_HOME
+    wp rewrite flush
+    wp elementor flush_css
+
+    rm "${LOCAL_PATH}/bin/migrate/${SITE_NAME}stage.sql"
+
+printf "\nAll done! Remember to git push the files and manually deploy them!\n\n"
